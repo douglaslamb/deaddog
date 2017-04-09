@@ -1,5 +1,5 @@
 /*This source code copyrighted by Lazy Foo' Productions (2004-2015)
-and may not be redistributed without written permission.*/
+  and may not be redistributed without written permission.*/
 
 //Using SDL and standard IO
 #include <SDL2/SDL.h>
@@ -32,9 +32,20 @@ int main( int argc, char* args[] ) {
     if (!loadMedia()) {
       printf("Failed to load media\n");
     } else {
-      SDL_BlitSurface(image, NULL, screenSurface, NULL);
-      SDL_UpdateWindowSurface(window);
-      SDL_Delay(10000);
+      // Main loop flag
+      bool quit = false;
+      //Event 
+      SDL_Event e;
+      while (!quit) {
+        // pull events from event queue and process until empty
+        while (SDL_PollEvent(&e) != 0) {
+          if (e.type == SDL_QUIT) {
+            quit = true;
+          }
+        }
+        SDL_BlitSurface(image, NULL, screenSurface, NULL);
+        SDL_UpdateWindowSurface(window);
+      }
     }
   }
   close();
@@ -67,23 +78,23 @@ bool loadMedia() {
 }
 
 bool init() {
-    bool success = true;
+  bool success = true;
 
-    //Initialize SDL
-    if( SDL_Init( SDL_INIT_VIDEO ) < 0 ) {
-        printf( "SDL could not initialize! SDL_Error: %s\n", SDL_GetError() );
-        success = false;
+  //Initialize SDL
+  if( SDL_Init( SDL_INIT_VIDEO ) < 0 ) {
+    printf( "SDL could not initialize! SDL_Error: %s\n", SDL_GetError() );
+    success = false;
+  } else {
+    //Create window
+    window = SDL_CreateWindow( "SDL Tutorial", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN );
+
+    if( window == NULL ) {
+      printf( "Window could not be created! SDL_Error: %s\n", SDL_GetError() );
+      success = false;
     } else {
-        //Create window
-        window = SDL_CreateWindow( "SDL Tutorial", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN );
-
-        if( window == NULL ) {
-            printf( "Window could not be created! SDL_Error: %s\n", SDL_GetError() );
-            success = false;
-        } else {
-            //Get window surface
-            screenSurface = SDL_GetWindowSurface( window );
-        }
+      //Get window surface
+      screenSurface = SDL_GetWindowSurface( window );
     }
-    return success;
+  }
+  return success;
 }

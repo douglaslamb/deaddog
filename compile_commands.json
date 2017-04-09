@@ -1,0 +1,7 @@
+[
+    {
+        "command": "c++ -c -std=c++11 -o bin/main.out src/main.cpp", 
+        "directory": "/Users/rocker/cpp/playgame", 
+        "file": "/Users/rocker/cpp/playgame/src/main.cpp"
+    }
+]
