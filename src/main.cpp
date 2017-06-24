@@ -35,7 +35,7 @@ SDL_Window* window = NULL;
 SDL_Surface* screenSurface = NULL;
 
 //The image that corresponsds to a keypress
-SDL_Surface* gKeyPressSurfaces[ KEY_PRESS_SURFACE_TOTAL ];
+SDL_Surface* keyPressSurfaces[ KEY_PRESS_SURFACE_TOTAL ];
 
 //Currently displayed image
 SDL_Surface* currentSurface = NULL;
@@ -60,12 +60,39 @@ int main( int argc, char* args[] ) {
       bool quit = false;
       //Event 
       SDL_Event e;
+
+      // set default current surface
+      currentSurface = keyPressSurfaces[KEY_PRESS_SURFACE_DEFAULT];
+
       while (!quit) {
         // pull events from event queue and process until empty
         while (SDL_PollEvent(&e) != 0) {
           if (e.type == SDL_QUIT) {
             quit = true;
+          } else if (e.type == SDL_KEYDOWN) {
+            switch (e.key.keysym.sym) {
+              case SDLK_UP:
+                currentSurface = keyPressSurfaces[KEY_PRESS_SURFACE_UP];
+                break;
+
+              case SDLK_DOWN:
+                currentSurface = keyPressSurfaces[KEY_PRESS_SURFACE_DOWN];
+                break;
+
+              case SDLK_LEFT:
+                currentSurface = keyPressSurfaces[KEY_PRESS_SURFACE_LEFT];
+                break;
+
+              case SDLK_RIGHT:
+                currentSurface = keyPressSurfaces[KEY_PRESS_SURFACE_RIGHT];
+                break;
+              
+              default:
+                currentSurface = keyPressSurfaces[KEY_PRESS_SURFACE_DEFAULT];
+                break;
+            }
           }
+
         }
         SDL_BlitSurface(currentSurface, NULL, screenSurface, NULL);
         SDL_UpdateWindowSurface(window);
@@ -91,8 +118,41 @@ void close() {
 
 bool loadMedia() {
 
-  //Loading success flag
+  // Loading success flag
   bool success = true;
+
+  // Load default surface
+  keyPressSurfaces[ KEY_PRESS_SURFACE_DEFAULT ] = loadSurface( "key-press-images/press.bmp" );
+  if( keyPressSurfaces[ KEY_PRESS_SURFACE_DEFAULT ] == NULL ) {
+    printf("Failed to load image.");
+    success = false;
+  }
+
+  keyPressSurfaces[KEY_PRESS_SURFACE_UP] = loadSurface( "key-press-images/up.bmp" );
+  if( keyPressSurfaces[KEY_PRESS_SURFACE_UP] == NULL ) {
+    printf("Failed to load image.");
+    success = false;
+  }
+
+  keyPressSurfaces[KEY_PRESS_SURFACE_DOWN] = loadSurface( "key-press-images/down.bmp" );
+  if( keyPressSurfaces[ KEY_PRESS_SURFACE_DOWN ] == NULL ) {
+    printf("Failed to load image.");
+    success = false;
+  }
+
+  keyPressSurfaces[KEY_PRESS_SURFACE_LEFT] = loadSurface( "key-press-images/left.bmp" );
+  if( keyPressSurfaces[ KEY_PRESS_SURFACE_LEFT ] == NULL ) {
+    printf("Failed to load image.");
+    success = false;
+  }
+
+  keyPressSurfaces[KEY_PRESS_SURFACE_RIGHT] = loadSurface( "key-press-images/right.bmp" );
+  if( keyPressSurfaces[ KEY_PRESS_SURFACE_RIGHT ] == NULL ) {
+    printf("Failed to load image.");
+    success = false;
+  }
+
+  return success;
 }
 
 bool init() {
