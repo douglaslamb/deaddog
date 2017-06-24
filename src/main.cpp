@@ -5,6 +5,15 @@
 #include <SDL2/SDL.h>
 #include <iostream>
 
+enum KeyPressSurfaces {
+  KEY_PRESS_SURFACE_DEFAULT,
+  KEY_PRESS_SURFACE_UP,
+  KEY_PRESS_SURFACE_DOWN,
+  KEY_PRESS_SURFACE_LEFT,
+  KEY_PRESS_SURFACE_RIGHT,
+  KEY_PRESS_SURFACE_TOTAL
+};
+
 //Screen dimension constants
 const int SCREEN_WIDTH = 640;
 const int SCREEN_HEIGHT = 480;
@@ -16,14 +25,29 @@ bool loadMedia();
 //Frees media and shuts down SDL 
 void close();
 
+//Loads individual image
+SDL_Surface* loadSurface( std::string path);
+
 //The window we'll be rendering to
 SDL_Window* window = NULL;
 
 //The surface contained by the window
 SDL_Surface* screenSurface = NULL;
 
-//The surface contained by the window
-SDL_Surface* image = NULL;
+//The image that corresponsds to a keypress
+SDL_Surface* gKeyPressSurfaces[ KEY_PRESS_SURFACE_TOTAL ];
+
+//Currently displayed image
+SDL_Surface* currentSurface = NULL;
+
+SDL_Surface* loadSurface( std::string path ) {
+  //load image at specified path
+  SDL_Surface* loadedSurface = SDL_LoadBMP( path.c_str() );
+  if (loadedSurface == NULL) {
+    printf( "Unable to load image %s! SDL Error: %s\n", path.c_str(), SDL_GetError());
+  }
+  return loadedSurface;
+}
 
 int main( int argc, char* args[] ) {
   if (!init()) {
@@ -43,7 +67,7 @@ int main( int argc, char* args[] ) {
             quit = true;
           }
         }
-        SDL_BlitSurface(image, NULL, screenSurface, NULL);
+        SDL_BlitSurface(currentSurface, NULL, screenSurface, NULL);
         SDL_UpdateWindowSurface(window);
       }
     }
@@ -54,8 +78,8 @@ int main( int argc, char* args[] ) {
 
 void close() {
   //Deallocate surface
-  SDL_FreeSurface(image);
-  image = NULL;
+  SDL_FreeSurface(currentSurface);
+  currentSurface = NULL;
 
   // clean up window
   SDL_DestroyWindow(window);
@@ -66,15 +90,9 @@ void close() {
 }
 
 bool loadMedia() {
-  bool success = true;
 
-  //load image
-  image = SDL_LoadBMP( "image.bmp");
-  if (image == NULL) {
-    printf("Unable to load image. SDL Error: %s", SDL_GetError());
-    success = false;
-  }
-  return success;
+  //Loading success flag
+  bool success = true;
 }
 
 bool init() {
