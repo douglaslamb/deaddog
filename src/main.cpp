@@ -15,8 +15,8 @@ enum KeyPressSurfaces {
 };
 
 //Screen dimension constants
-const int SCREEN_WIDTH = 640;
-const int SCREEN_HEIGHT = 480;
+const int SCREEN_WIDTH = 1024;
+const int SCREEN_HEIGHT = 768;
 
 //Starts up SDL and creates window 
 bool init(); 
@@ -106,7 +106,13 @@ int main( int argc, char* args[] ) {
           }
 
         }
-        SDL_BlitSurface(currentSurface, NULL, screenSurface, NULL);
+        //Apply the image stretched
+        SDL_Rect stretchRect;
+        stretchRect.x = 0;
+        stretchRect.y = 0;
+        stretchRect.w = SCREEN_WIDTH;
+        stretchRect.h = SCREEN_HEIGHT;
+        SDL_BlitScaled(currentSurface, NULL, screenSurface, &stretchRect);
         SDL_UpdateWindowSurface(window);
       }
     }
