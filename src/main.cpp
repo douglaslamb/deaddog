@@ -5,14 +5,13 @@
 #include <SDL2/SDL.h>
 #include <iostream>
 
-enum KeyPressSurfaces {
-  KEY_PRESS_SURFACE_DEFAULT,
-  KEY_PRESS_SURFACE_UP,
-  KEY_PRESS_SURFACE_DOWN,
-  KEY_PRESS_SURFACE_LEFT,
-  KEY_PRESS_SURFACE_RIGHT,
-  KEY_PRESS_SURFACE_TOTAL
-};
+struct Place {
+  SDL_Surface* surface;
+  Place* left;
+  Place* right;
+  Place* down;
+  Place* up;
+}
 
 //Screen dimension constants
 const int SCREEN_WIDTH = 1024;
@@ -25,20 +24,10 @@ bool loadMedia();
 //Frees media and shuts down SDL 
 void close();
 
-//Loads individual image
 SDL_Surface* loadSurface( std::string path);
-
-//The window we'll be rendering to
 SDL_Window* window = NULL;
-
-//The surface contained by the window
 SDL_Surface* screenSurface = NULL;
-
-//The image that corresponsds to a keypress
-SDL_Surface* keyPressSurfaces[ KEY_PRESS_SURFACE_TOTAL ];
-
-//Currently displayed image
-SDL_Surface* currentSurface = NULL;
+Place* currPlace = NULL;
 
 SDL_Surface* loadSurface( std::string path ) {
   //The final optimized image
@@ -54,7 +43,6 @@ SDL_Surface* loadSurface( std::string path ) {
     if (optimizedSurface == NULL) {
       printf("Unable to optimize image %s! SDL Error: %s\n", path.c_str(), SDL_GetError());
     }
-
     //Get rid of old loaded surface
     SDL_FreeSurface(loadedSurface);
   }
@@ -142,30 +130,6 @@ bool loadMedia() {
   // Load default surface
   keyPressSurfaces[ KEY_PRESS_SURFACE_DEFAULT ] = loadSurface( "key-press-images/press.bmp" );
   if( keyPressSurfaces[ KEY_PRESS_SURFACE_DEFAULT ] == NULL ) {
-    printf("Failed to load image.");
-    success = false;
-  }
-
-  keyPressSurfaces[KEY_PRESS_SURFACE_UP] = loadSurface( "key-press-images/up.bmp" );
-  if( keyPressSurfaces[KEY_PRESS_SURFACE_UP] == NULL ) {
-    printf("Failed to load image.");
-    success = false;
-  }
-
-  keyPressSurfaces[KEY_PRESS_SURFACE_DOWN] = loadSurface( "key-press-images/down.bmp" );
-  if( keyPressSurfaces[ KEY_PRESS_SURFACE_DOWN ] == NULL ) {
-    printf("Failed to load image.");
-    success = false;
-  }
-
-  keyPressSurfaces[KEY_PRESS_SURFACE_LEFT] = loadSurface( "key-press-images/left.bmp" );
-  if( keyPressSurfaces[ KEY_PRESS_SURFACE_LEFT ] == NULL ) {
-    printf("Failed to load image.");
-    success = false;
-  }
-
-  keyPressSurfaces[KEY_PRESS_SURFACE_RIGHT] = loadSurface( "key-press-images/right.bmp" );
-  if( keyPressSurfaces[ KEY_PRESS_SURFACE_RIGHT ] == NULL ) {
     printf("Failed to load image.");
     success = false;
   }
