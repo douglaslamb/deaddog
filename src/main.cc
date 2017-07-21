@@ -84,7 +84,7 @@ int main( int argc, char* args[] ) {
   }
   Mix_Chunk *aahSound = Mix_LoadWAV("assets/audio/aah.wav");
   if( aahSound == NULL ) {
-    printf("Failed to load sound.");
+    printf("Mix_LoadWAV: %s\n", Mix_GetError());
     success = false;
   }
 
