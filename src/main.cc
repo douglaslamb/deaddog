@@ -5,36 +5,16 @@
 #include "Place.cc"
 
 void close();
-SDL_Surface* loadSurface( std::string path);
+SDL_Texture* loadTexture(std::string path);
 
 // Screen dimension constants
 const int SCREEN_WIDTH = 1024;
 const int SCREEN_HEIGHT = 768;
 
 // global vars
-SDL_Window* window = NULL;
-SDL_Surface* screenSurface = NULL;
-SDL_Surface* currSurface = NULL;
-
-// loadSurface returns SDL_Surface from bmp file at path.
-SDL_Surface* loadSurface( std::string path ) {
-  // eventual return surface
-  SDL_Surface* optimizedSurface = NULL;
-
-  //load image at specified path
-  SDL_Surface* loadedSurface = SDL_LoadBMP( path.c_str() );
-  if (loadedSurface == NULL) {
-    printf( "Unable to load image %s! SDL Error: %s\n", path.c_str(), SDL_GetError());
-  } else {
-    //Convert surface to screen format
-    optimizedSurface = SDL_ConvertSurface(loadedSurface, screenSurface->format, NULL);
-    if (optimizedSurface == NULL) {
-      printf("Unable to optimize image %s! SDL Error: %s\n", path.c_str(), SDL_GetError());
-    }
-    SDL_FreeSurface(loadedSurface);
-  }
-  return optimizedSurface;
-}
+SDL_Window* gWindow = NULL;
+SDL_Renderer* gRenderer = NULL;
+SDL_Texture* gTexture = NULL;
 
 int main( int argc, char* args[] ) {
   // init SDL
@@ -45,13 +25,19 @@ int main( int argc, char* args[] ) {
       success = false;
     } else {
       // create window
-      window = SDL_CreateWindow( "SDL Tutorial", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN );
-      if( window == NULL ) {
+      gWindow = SDL_CreateWindow( "SDL Tutorial", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN );
+      if( gWindow == NULL ) {
         printf( "Window could not be created! SDL_Error: %s\n", SDL_GetError() );
         success = false;
       } else {
-        // get window surface
-        screenSurface = SDL_GetWindowSurface( window );
+        // create renderer
+        gRenderer = SDL_CreateRenderer(gWindow, -1, SDL_RENDERER_ACCELERATED);
+        if (gRenderer == NULL) {
+          printf("Renderer could not init. SDL Error: %s\n", SDL_GetError());
+          success = false;
+        } else {
+          SDL_SetRenderDrawColor(gRenderer, 0xFF, 0xFF, 0xFF, 0xFF);
+        }
       }
       // init sound
       if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048) < 0) {
@@ -66,28 +52,17 @@ int main( int argc, char* args[] ) {
 
   // load media
   bool success = true;
-  // load default surface
-  SDL_Surface* startSurface = loadSurface( "assets/images/press.bmp" );
-  if( startSurface == NULL ) {
-    printf("Failed to load image.");
-    success = false;
-  }
-  SDL_Surface* dog = loadSurface( "assets/images/dog.bmp" );
-  if( dog == NULL ) {
-    printf("Failed to load image.");
-    success = false;
-  }
-  SDL_Surface* forest = loadSurface( "assets/images/forest.bmp" );
-  if( forest == NULL ) {
-    printf("Failed to load image.");
-    success = false;
-  }
+  // load textures
+  SDL_Texture* startTexture = loadTexture( "assets/images/press.bmp" );
+  SDL_Texture* dogTexture = loadTexture( "assets/images/dog.bmp" );
+  SDL_Texture* forestTexture = loadTexture( "assets/images/forest.bmp" );
+
+  // load audio
   Mix_Chunk *aahSound = Mix_LoadWAV("assets/audio/aah.wav");
   if( aahSound == NULL ) {
     printf("Mix_LoadWAV: %s\n", Mix_GetError());
     success = false;
   }
-
   if (!success) {
     return 0;
   }
@@ -95,9 +70,7 @@ int main( int argc, char* args[] ) {
   // setup main loop
   bool quit = false;
   bool playing = false;
-  currSurface = startSurface;
-
-  // placeholder to process events
+  gTexture = startTexture;
   SDL_Event e;
 
   // main loop
@@ -110,16 +83,16 @@ int main( int argc, char* args[] ) {
         if (playing) {
           if (e.type == SDL_KEYDOWN) {
             if (e.key.keysym.sym == SDLK_RIGHT) {
-              currSurface = startSurface;
+              gTexture = startTexture;
               playing = false;
             } else if (e.key.keysym.sym == SDLK_LEFT) {
-              currSurface = forest;
+              gTexture = forestTexture;
             }
           }
-        // start screen loop
+        // startscreen loop
         } else {
           if (e.type == SDL_KEYDOWN) {
-            currSurface = dog;
+            gTexture = dogTexture;
             Mix_PlayChannel(-1, aahSound, 0);
             playing = true;
           }
@@ -127,27 +100,44 @@ int main( int argc, char* args[] ) {
       }
     }
 
-    // blit currSurface to screenSurface
-    SDL_Rect stretchRect;
-    stretchRect.x = 0;
-    stretchRect.y = 0;
-    stretchRect.w = SCREEN_WIDTH;
-    stretchRect.h = SCREEN_HEIGHT;
-    SDL_BlitScaled(currSurface, NULL, screenSurface, &stretchRect);
-    SDL_UpdateWindowSurface(window);
+    // render current texture
+    SDL_RenderClear(gRenderer);
+    SDL_RenderCopy(gRenderer, gTexture, NULL, NULL);
+    SDL_RenderPresent(gRenderer);
   }
   close();
   return 0;
 }
 
+// loadTexture returns SDL_Texture from bmp file at path.
+SDL_Texture* loadTexture( std::string path ) {
+  // eventual return texture
+  SDL_Texture* texture = NULL;
+  // load bmp at specified path
+  SDL_Surface* surface = SDL_LoadBMP( path.c_str() );
+  if (surface == NULL) {
+    printf( "Unable to load image %s! SDL Error: %s\n", path.c_str(), SDL_GetError());
+  } else {
+    // create texture from surface
+    texture = SDL_CreateTextureFromSurface(gRenderer, surface);
+    if (texture == NULL) {
+      printf("Could not create texture from %s. SDL Error: %s\n", path.c_str(), SDL_GetError());
+    }
+    SDL_FreeSurface(surface);
+  }
+  return texture;
+}
+
 void close() {
-  //Deallocate surface
-  SDL_FreeSurface(currSurface);
-  currSurface = NULL;
+  // free gTexture
+  SDL_DestroyTexture(gTexture);
+  gTexture = NULL;
 
   // clean up window
-  SDL_DestroyWindow(window);
-  window = NULL;
+  SDL_DestroyWindow(gWindow);
+  SDL_DestroyRenderer(gRenderer);
+  gWindow = NULL;
+  gRenderer = NULL;
 
   // quit sdl
   Mix_Quit();
