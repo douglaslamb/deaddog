@@ -3,6 +3,7 @@
 #include <SDL2_mixer/SDL_mixer.h>
 #include <iostream>
 #include "Place.cc"
+#include <math.h>
 
 void close();
 SDL_Texture* loadTexture(std::string path);
@@ -72,6 +73,8 @@ int main( int argc, char* args[] ) {
   bool playing = false;
   gTexture = startTexture;
   SDL_Event e;
+  // visual effect variables
+  double redCounter = 0;
 
   // main loop
   while (!quit) {
@@ -100,7 +103,15 @@ int main( int argc, char* args[] ) {
       }
     }
 
+    // visual 
+    redCounter++;
+    double currRed = sin(redCounter/100) * 255;
+
     // render current texture
+    if (SDL_SetTextureColorMod(gTexture, currRed, 255, 255) < 0) {
+      printf("SDL_SetTextureColorMod failed. SDL_Error %s\n", SDL_GetError());
+    }
+    
     SDL_RenderClear(gRenderer);
     SDL_RenderCopy(gRenderer, gTexture, NULL, NULL);
     SDL_RenderPresent(gRenderer);
