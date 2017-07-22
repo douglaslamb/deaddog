@@ -5,7 +5,6 @@
 #include "Place.cc"
 #include <math.h>
 
-void close();
 SDL_Texture* loadTexture(std::string path);
 
 // Screen dimension constants
@@ -67,10 +66,18 @@ int main( int argc, char* args[] ) {
     return 0;
   }
 
+  //make places
+  Place* dogPlace = new Place(dogTexture, aahSound);
+  Place* forestPlace = new Place(forestTexture, NULL);
+
+  dogPlace->places[3] = forestPlace;
+  forestPlace->places[1] = dogPlace;
+
   // setup main loop
   bool quit = false;
   bool playing = false;
   gTexture = startTexture;
+  Place* currPlace;
   SDL_Event e;
 
   // visual effects consts
@@ -92,18 +99,30 @@ int main( int argc, char* args[] ) {
         // playing loop
         if (playing) {
           if (e.type == SDL_KEYDOWN) {
-            if (e.key.keysym.sym == SDLK_RIGHT) {
-              gTexture = startTexture;
-              playing = false;
+            Place* nextPlace = NULL;
+            if (e.key.keysym.sym == SDLK_UP) {
+              nextPlace = currPlace->upAction();
+            } else if (e.key.keysym.sym == SDLK_RIGHT) {
+              nextPlace = currPlace->rightAction();
+            } else if (e.key.keysym.sym == SDLK_DOWN) {
+              nextPlace = currPlace->downAction();
             } else if (e.key.keysym.sym == SDLK_LEFT) {
-              gTexture = forestTexture;
+              nextPlace = currPlace->leftAction();
+            } else if (e.key.keysym.sym == SDLK_ESCAPE) {
+              // deallocate everything and go back to main menu
             }
+            if (nextPlace != NULL) {
+              currPlace = nextPlace;
+              Mix_PlayChannel(-1, currPlace->sound, 0);
+            }
+            gTexture = currPlace->texture;
           }
         // startscreen loop
         } else {
           if (e.type == SDL_KEYDOWN) {
-            gTexture = dogTexture;
-            Mix_PlayChannel(-1, aahSound, 0);
+            currPlace = dogPlace;
+            gTexture = currPlace->texture;
+            Mix_PlayChannel(-1, currPlace->sound, 0);
             playing = true;
           }
         }
