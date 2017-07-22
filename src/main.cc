@@ -11,6 +11,7 @@ SDL_Texture* loadTexture(std::string path);
 // Screen dimension constants
 const int SCREEN_WIDTH = 1024;
 const int SCREEN_HEIGHT = 768;
+const double PI = 3.14159265;
 
 // global vars
 SDL_Window* gWindow = NULL;
@@ -32,7 +33,7 @@ int main( int argc, char* args[] ) {
         success = false;
       } else {
         // create renderer
-        gRenderer = SDL_CreateRenderer(gWindow, -1, SDL_RENDERER_ACCELERATED);
+        gRenderer = SDL_CreateRenderer(gWindow, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
         if (gRenderer == NULL) {
           printf("Renderer could not init. SDL Error: %s\n", SDL_GetError());
           success = false;
@@ -73,10 +74,15 @@ int main( int argc, char* args[] ) {
   bool playing = false;
   gTexture = startTexture;
   SDL_Event e;
-  // visual effect variables
-  double redCounter = 0;
+
+  // visual effects consts
+  double redRate = 0.173836; // per second
+  double greenRate = 0.3238972; // per second
+  double blueRate = 0.0723382; // per second
 
   // main loop
+  int elapsedTicks = SDL_GetTicks();
+  int delta;
   while (!quit) {
     while (SDL_PollEvent(&e) != 0) {
       if (e.type == SDL_QUIT) {
@@ -103,12 +109,16 @@ int main( int argc, char* args[] ) {
       }
     }
 
-    // visual 
-    redCounter++;
-    double currRed = sin(redCounter/100) * 255;
+    delta = elapsedTicks - SDL_GetTicks();
+    elapsedTicks = SDL_GetTicks();
+
+    // visual effects
+    double currRed = (sin(elapsedTicks * (redRate / 1000) * 2 * PI) + 1) * 0.5 * 255;
+    double currGreen = (sin(elapsedTicks * (greenRate / 1000) * 2 * PI) + 1) * 0.5 * 255;
+    double currBlue = (sin(elapsedTicks * (blueRate / 1000) * 2 * PI) + 1) * 0.5 * 20;
 
     // render current texture
-    if (SDL_SetTextureColorMod(gTexture, currRed, 255, 255) < 0) {
+    if (SDL_SetTextureColorMod(gTexture, currRed, currGreen, currBlue) < 0) {
       printf("SDL_SetTextureColorMod failed. SDL_Error %s\n", SDL_GetError());
     }
     
