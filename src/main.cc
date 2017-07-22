@@ -113,9 +113,9 @@ int main( int argc, char* args[] ) {
     elapsedTicks = SDL_GetTicks();
 
     // visual effects
-    double currRed = (sin(elapsedTicks * (redRate / 1000) * 2 * PI) + 1) * 0.5 * 255;
-    double currGreen = (sin(elapsedTicks * (greenRate / 1000) * 2 * PI) + 1) * 0.5 * 255;
-    double currBlue = (sin(elapsedTicks * (blueRate / 1000) * 2 * PI) + 1) * 0.5 * 20;
+    double currRed = (sin(elapsedTicks * (redRate / 1000) * 2 * PI) + 1) * 0.5 * 238;
+    double currGreen = (sin(elapsedTicks * (greenRate / 1000) * 2 * PI) + 1) * 0.5 * 235;
+    double currBlue = (sin(elapsedTicks * (blueRate / 1000) * 2 * PI) + 1) * 0.5 * 20 + 70;
 
     // render current texture
     if (SDL_SetTextureColorMod(gTexture, currRed, currGreen, currBlue) < 0) {
