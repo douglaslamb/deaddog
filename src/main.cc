@@ -58,13 +58,11 @@ int main( int argc, char* args[] ) {
   SDL_Texture* startTexture = loadTexture( "assets/images/press.bmp" );
   SDL_Texture* dogTexture = loadTexture( "assets/images/dog.bmp" );
   SDL_Texture* forestTexture = loadTexture( "assets/images/forest.bmp" );
-
-  // load audio
+  // load music
+  Mix_Music *music = Mix_LoadMUS("assets/audio/music.wav");
+  // load sound effects
   Mix_Chunk *aahSound = Mix_LoadWAV("assets/audio/aah.wav");
-  if( aahSound == NULL ) {
-    printf("Mix_LoadWAV: %s\n", Mix_GetError());
-    success = false;
-  }
+
   if (!success) {
     return 0;
   }
@@ -79,6 +77,9 @@ int main( int argc, char* args[] ) {
   double redRate = 0.173836; // per second
   double greenRate = 0.3238972; // per second
   double blueRate = 0.0723382; // per second
+
+  // start music
+  Mix_PlayMusic(music, -1);
 
   // main loop
   int elapsedTicks = SDL_GetTicks();
@@ -126,7 +127,29 @@ int main( int argc, char* args[] ) {
     SDL_RenderCopy(gRenderer, gTexture, NULL, NULL);
     SDL_RenderPresent(gRenderer);
   }
-  close();
+  // close program
+  {
+    // stop music
+    Mix_HaltMusic();
+    // free resources
+    SDL_DestroyTexture(gTexture);
+    Mix_FreeChunk(aahSound);
+    Mix_FreeMusic(music);
+
+    gTexture = NULL;
+    aahSound = NULL;
+    music = NULL;
+
+    // clean up window
+    SDL_DestroyWindow(gWindow);
+    SDL_DestroyRenderer(gRenderer);
+    gWindow = NULL;
+    gRenderer = NULL;
+
+    // quit sdl
+    Mix_Quit();
+    SDL_Quit();
+  }
   return 0;
 }
 
@@ -147,20 +170,4 @@ SDL_Texture* loadTexture( std::string path ) {
     SDL_FreeSurface(surface);
   }
   return texture;
-}
-
-void close() {
-  // free gTexture
-  SDL_DestroyTexture(gTexture);
-  gTexture = NULL;
-
-  // clean up window
-  SDL_DestroyWindow(gWindow);
-  SDL_DestroyRenderer(gRenderer);
-  gWindow = NULL;
-  gRenderer = NULL;
-
-  // quit sdl
-  Mix_Quit();
-  SDL_Quit();
 }
