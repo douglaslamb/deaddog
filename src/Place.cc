@@ -9,9 +9,12 @@ Place::Place(SDL_Texture* _texture, Mix_Chunk* _sound) {
 
 Place* Place::doAction(int direction) {
   if (actions[direction]) {
+    // if there is an action lambda do that
     actions[direction]();
     return NULL;
   } else {
+    // else just return the place in that
+    // direction, even if it's NULL
     return places[direction];
   }
 }
