@@ -86,7 +86,9 @@ int main( int argc, char* args[] ) {
   double blueRate = 0.0723382; // per second
 
   // start music
-  Mix_PlayMusic(music, -1);
+  if (Mix_PlayMusic(music, -1) == -1) {
+    printf("Mix_PlayMusic error: %s\n", Mix_GetError());
+  }
 
   // main loop
   int elapsedTicks = SDL_GetTicks();
@@ -113,7 +115,11 @@ int main( int argc, char* args[] ) {
             }
             if (nextPlace != NULL) {
               currPlace = nextPlace;
-              Mix_PlayChannel(-1, currPlace->sound, 0);
+              if (currPlace->sound != NULL) {
+                if (Mix_PlayChannel(-1, currPlace->sound, 0) == -1) {
+                  printf("Mix_PlayChannel error: %s\n", Mix_GetError());
+                }
+              }
             }
             gTexture = currPlace->texture;
           }
@@ -122,7 +128,11 @@ int main( int argc, char* args[] ) {
           if (e.type == SDL_KEYDOWN) {
             currPlace = dogPlace;
             gTexture = currPlace->texture;
-            Mix_PlayChannel(-1, currPlace->sound, 0);
+            if (currPlace->sound != NULL) {
+              if (Mix_PlayChannel(-1, currPlace->sound, 0) == -1) {
+                printf("Mix_PlayChannel error: %s\n", Mix_GetError());
+              }
+            }
             playing = true;
           }
         }
