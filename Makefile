@@ -1,5 +1,8 @@
-all:
-	g++ -std=c++11 -stdlib=libc++ src/main.cc -framework SDL2 -framework SDL2_mixer -o bin/main.out
+dev:
+	g++-7 -std=c++11 src/main.cc -lSDL2 -lSDL2_mixer -o bin/dev.out -D DEV
 
 debug: 
-	g++ -std=c++11 -stdlib=libc++ src/main.cc -framework SDL2 -framework SDL2_mixer -o bin/main.out -g
+	g++-7 -std=c++11 src/main.cc -lSDL2 -lSDL2_mixer -o bin/debug.out -D DEV -g
+
+release: 
+	g++-7 -std=c++11 src/main.cc -lSDL2 -lSDL2_mixer -o bin/release.out

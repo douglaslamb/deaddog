@@ -16,6 +16,7 @@ const double PI = 3.14159265;
 SDL_Window* gWindow = NULL;
 SDL_Renderer* gRenderer = NULL;
 SDL_Texture* gTexture = NULL;
+std::string dataPath;
 
 int main( int argc, char* args[] ) {
   // init SDL
@@ -51,6 +52,16 @@ int main( int argc, char* args[] ) {
     }
   }
 
+  // conditional loading of path for images and audio
+#ifdef DEV
+  dataPath = "./";
+#else
+  dataPath = SDL_GetBasePath();
+  if (dataPath == "") {
+    dataPath = "./";
+  }
+#endif
+
   // game state variables
   bool quit = false;
   bool playing = false;
@@ -58,15 +69,15 @@ int main( int argc, char* args[] ) {
   // load media
   bool success = true;
   // load textures
-  SDL_Texture* startTexture = loadTexture( "assets/images/press.bmp" );
-  SDL_Texture* dogTexture = loadTexture( "assets/images/dog.bmp" );
-  SDL_Texture* deadDogTexture = loadTexture( "assets/images/dead-dog.bmp" );
-  SDL_Texture* forestTexture = loadTexture( "assets/images/forest.bmp" );
+  SDL_Texture* startTexture = loadTexture( dataPath + "assets/images/press.bmp" );
+  SDL_Texture* dogTexture = loadTexture( dataPath + "assets/images/dog.bmp" );
+  SDL_Texture* deadDogTexture = loadTexture( dataPath + "assets/images/dead-dog.bmp" );
+  SDL_Texture* forestTexture = loadTexture( dataPath + "assets/images/forest.bmp" );
   // load music
-  Mix_Music *music = Mix_LoadMUS("assets/audio/music.wav");
+  Mix_Music *music = Mix_LoadMUS((dataPath + "assets/audio/music.wav").c_str());
   // load sound effects
-  Mix_Chunk *aahSound = Mix_LoadWAV("assets/audio/aah.wav");
-  Mix_Chunk *dogDieSound = Mix_LoadWAV("assets/audio/dog-die.wav");
+  Mix_Chunk *aahSound = Mix_LoadWAV((dataPath + "assets/audio/aah.wav").c_str());
+  Mix_Chunk *dogDieSound = Mix_LoadWAV((dataPath + "assets/audio/dog-die.wav").c_str());
 
   if (!success) {
     return 0;
