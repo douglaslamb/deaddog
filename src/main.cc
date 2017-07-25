@@ -114,7 +114,7 @@ int main( int argc, char* args[] ) {
   int delta;
   while (!quit) {
     while (SDL_PollEvent(&e) != 0) {
-      if (e.type == SDL_QUIT) {
+      if (e.type == SDL_QUIT || e.key.keysym.sym == SDLK_ESCAPE) {
         quit = true;
       } else {
         // playing loop
@@ -129,8 +129,6 @@ int main( int argc, char* args[] ) {
               nextPlace = currPlace->downAction();
             } else if (e.key.keysym.sym == SDLK_LEFT) {
               nextPlace = currPlace->leftAction();
-            } else if (e.key.keysym.sym == SDLK_ESCAPE) {
-              // deallocate everything and go back to main menu
             }
             if (nextPlace != NULL) {
               currPlace = nextPlace;
