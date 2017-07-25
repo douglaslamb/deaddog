@@ -34,4 +34,3 @@ Place* Place::downAction() {
 Place* Place::leftAction() {
   return doAction(3);
 }
-

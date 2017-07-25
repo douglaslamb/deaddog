@@ -9,7 +9,7 @@ class Place {
   public:
     SDL_Texture* texture;
     Mix_Chunk* sound;
-    std::function<Place*()> actions[4] = {};
+    std::function<void ()> actions[4] = {};
     Place* places[4] = {};
 
     Place(SDL_Texture* texture, Mix_Chunk* sound);

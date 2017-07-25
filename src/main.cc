@@ -51,16 +51,22 @@ int main( int argc, char* args[] ) {
     }
   }
 
+  // game state variables
+  bool quit = false;
+  bool playing = false;
+
   // load media
   bool success = true;
   // load textures
   SDL_Texture* startTexture = loadTexture( "assets/images/press.bmp" );
   SDL_Texture* dogTexture = loadTexture( "assets/images/dog.bmp" );
+  SDL_Texture* deadDogTexture = loadTexture( "assets/images/dead-dog.bmp" );
   SDL_Texture* forestTexture = loadTexture( "assets/images/forest.bmp" );
   // load music
   Mix_Music *music = Mix_LoadMUS("assets/audio/music.wav");
   // load sound effects
   Mix_Chunk *aahSound = Mix_LoadWAV("assets/audio/aah.wav");
+  Mix_Chunk *dogDieSound = Mix_LoadWAV("assets/audio/dog-die.wav");
 
   if (!success) {
     return 0;
@@ -70,12 +76,25 @@ int main( int argc, char* args[] ) {
   Place* dogPlace = new Place(dogTexture, aahSound);
   Place* forestPlace = new Place(forestTexture, NULL);
 
+  // link places
   dogPlace->places[3] = forestPlace;
   forestPlace->places[1] = dogPlace;
 
+  // set actions on places
+  dogPlace->actions[3] = [&dogPlace, &deadDogTexture, &dogDieSound](){
+    dogPlace->texture = deadDogTexture;
+    if (Mix_PlayChannel(-1, dogDieSound, 0) == -1) {
+      printf("Mix_PlayChannel error: %s\n", Mix_GetError());
+    }
+    dogPlace->actions[3] = NULL;
+    dogPlace->sound = NULL;
+  };
+
+  forestPlace->actions[3] = [&quit]() {
+    quit = true;
+  };
+
   // setup main loop
-  bool quit = false;
-  bool playing = false;
   gTexture = startTexture;
   Place* currPlace;
   SDL_Event e;
@@ -162,11 +181,23 @@ int main( int argc, char* args[] ) {
     Mix_HaltMusic();
     // free resources
     SDL_DestroyTexture(gTexture);
-    Mix_FreeChunk(aahSound);
-    Mix_FreeMusic(music);
+    SDL_DestroyTexture(startTexture);
+    SDL_DestroyTexture(dogTexture);
+    SDL_DestroyTexture(deadDogTexture);
+    SDL_DestroyTexture(forestTexture);
 
     gTexture = NULL;
+    startTexture = NULL;
+    dogTexture = NULL;
+    deadDogTexture = NULL;
+    forestTexture = NULL;
+
+    Mix_FreeChunk(aahSound);
+    Mix_FreeChunk(dogDieSound);
+    Mix_FreeMusic(music);
+
     aahSound = NULL;
+    dogDieSound = NULL;
     music = NULL;
 
     // clean up window
