@@ -1,6 +1,6 @@
 //Using SDL and standard IO
 #include <SDL2/SDL.h>
-#include <SDL2_mixer/SDL_mixer.h>
+#include <SDL2/SDL_mixer.h>
 #include <iostream>
 #include "Place.cc"
 #include <math.h>

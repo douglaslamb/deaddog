@@ -1,5 +1,5 @@
 #include <SDL2/SDL.h>
-#include <SDL2_mixer/SDL_mixer.h>
+#include <SDL2/SDL_mixer.h>
 #include "Place.h"
 
 Place::Place(SDL_Texture* _texture, Mix_Chunk* _sound) {
