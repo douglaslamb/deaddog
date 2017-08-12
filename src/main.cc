@@ -125,7 +125,7 @@ int main( int argc, char* args[] ) {
   int delta;
   while (!quit) {
     while (SDL_PollEvent(&e) != 0) {
-      if (e.type == SDL_QUIT || e.key.keysym.sym == SDLK_ESCAPE) {
+      if (e.type == SDL_QUIT || e.type == SDL_KEYDOWN && e.key.keysym.sym == SDLK_ESCAPE) {
         quit = true;
       } else {
         // playing loop
